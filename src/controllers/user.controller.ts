@@ -7,7 +7,7 @@ import mongoose from 'mongoose';
 export async function createUserHandler(req: Request<{}, {}, CreateUserInput['body']>, res: Response) {
     try {
         const user = await createUser(req.body);
-        return user;
+        return res.send(user);
     } catch (error: any) {
         log.error(error);
         // 409 Means conflict: we're assuming that if this function throws an error, it's because the uniqueness of email of user was violated.
