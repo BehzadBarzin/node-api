@@ -1,6 +1,7 @@
 import { get } from 'lodash';
 import { NextFunction, Request, Response } from 'express';
 import { verifyJWT } from '../utils/jwt.utils';
+import { reIssueAccessToken } from '../services/session.service';
 
 
 /**
@@ -12,6 +13,10 @@ export async function deserializeUser(req: Request, res: Response, next: NextFun
     // Remove 'Bearer ' from the start of the access token
     accessToken = accessToken.replace(/^Bearer\s/, '');
 
+
+    // Using lodash's get method for safer access to a property that might not exist
+    let refreshToken = get(req, 'headers.x-refresh', '').toString();
+
     if (!accessToken) {
         return next();
     }
@@ -21,6 +26,21 @@ export async function deserializeUser(req: Request, res: Response, next: NextFun
     if (decoded) {
         // Attach the user (that was encoded in JWT) to the response
         res.locals.user = decoded;
-        return next();
     }
+
+    // If user's token has expired and they have a refresh token
+    if (expired && refreshToken) {
+        const newAccessToken = await reIssueAccessToken(refreshToken);
+        
+        if (newAccessToken) {
+            res.setHeader('x-access-token', newAccessToken);
+            
+            // Set the user to res.locals to be accessible by handlers
+            const result = verifyJWT(newAccessToken);
+            res.locals.user = result.decoded;
+        } 
+
+    }
+
+    return next();
 }

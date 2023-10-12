@@ -1,4 +1,4 @@
-import { AnyKeys } from 'mongoose';
+import { AnyKeys, FilterQuery } from 'mongoose';
 import User, { IUser } from '../models/user.model';
 import { omit } from 'lodash';
 
@@ -39,3 +39,7 @@ export async function validatePassword(email: string, password: string) {
 }
 
 // ======================================================================================================
+
+export async function findUser(query: FilterQuery<IUser>) {
+    return await User.findOne(query).lean(); // Using lean to only return property values
+}
