@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { validatePassword } from '../services/user.service';
-import { createSession, findSessions } from '../services/session.service';
+import { createSession, findSessions, updateSession } from '../services/session.service';
 import { signJWT } from '../utils/jwt.utils';
 import config from 'config';
 import { CreateUserSessionInput } from '../schemas/session.schema';
@@ -53,4 +53,22 @@ export async function getUserSessionHandler(req: Request, res: Response) {
     });
 
     return res.send(sessions);
+}
+
+// =================================================================================================
+
+export async function deleteUserSessionHandler(req: Request, res: Response) {
+    // The user object was decoded from JWT and attached to res.locals within the deserializeUser middleware
+    const session = res.locals.user.session;
+
+    await updateSession({
+        _id: session,
+    }, {
+        valid: false,
+    });
+
+    res.send({
+        accessToken: null,
+        refreshToken: null,
+    });
 }

@@ -2,7 +2,7 @@ import { Express, Request, Response } from 'express';
 import { createUserHandler } from './controllers/user.controller';
 import validateResource from './middleware/validateResource';
 import { createUserSchema } from './schemas/user.schema';
-import { createUserSessionHandler, getUserSessionHandler } from './controllers/session.controller';
+import { createUserSessionHandler, deleteUserSessionHandler, getUserSessionHandler } from './controllers/session.controller';
 import { createUserSessionSchema } from './schemas/session.schema';
 import { requireUser } from './middleware/requireUser';
 
@@ -20,6 +20,9 @@ function routes(app: Express) {
     // -------------------------------------------------------
     // Get all sessions for a user
     app.get('/api/sessions', requireUser, getUserSessionHandler);
+    // -------------------------------------------------------    
+    // Remove a user session (Logout)
+    app.delete('/api/sessions', requireUser, deleteUserSessionHandler);
     // -------------------------------------------------------
 }
 
