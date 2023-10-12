@@ -1,4 +1,5 @@
-import Session from "../models/session.model";
+import { FilterQuery } from "mongoose";
+import Session, { ISession } from "../models/session.model";
 
 export async function createSession(userId: string, userAgent: string) {
 
@@ -7,6 +8,19 @@ export async function createSession(userId: string, userAgent: string) {
             user: userId,
             userAgent: userAgent,
         });
+    } catch (error) {
+        // Rethrow error to be caught by session.controller.ts
+        throw error;
+    }
+    
+}
+
+// ====================================================================================
+
+export async function findSessions(query: FilterQuery<ISession>) {
+    
+    try {
+        return await Session.find(query).lean(); // '.lean()' will only return the object with its fields (no functions)
     } catch (error) {
         // Rethrow error to be caught by session.controller.ts
         throw error;
