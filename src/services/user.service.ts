@@ -1,5 +1,6 @@
 import { AnyKeys } from 'mongoose';
 import User, { IUser } from '../models/user.model';
+import { omit } from 'lodash';
 
 // ======================================================================================================
 // Create a user in database
@@ -11,4 +12,30 @@ export async function createUser(input: IUser | AnyKeys<IUser>) {
         throw error;
     }
 }
+// ======================================================================================================
+/**
+ * Check user's password.
+ * 
+ * @param email user's email
+ * @param password candidate password
+ * @returns false if the password is incorrect, and the User object if the password is correct
+ */
+export async function validatePassword(email: string, password: string) {
+    const user = await User.findOne({
+        email: email,
+    });
+
+    if (!user) {
+        return false;
+    }
+
+    const isValid = await user.comparePasswords(password);
+
+    if (!isValid) {
+        return false;
+    }
+
+    return omit(user.toJSON(), 'password');
+}
+
 // ======================================================================================================

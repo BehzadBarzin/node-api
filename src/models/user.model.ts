@@ -61,7 +61,7 @@ userSchema.pre<IUser>('save', {document: true}, async function(this: IUser, next
 });
 // ===================================================================================================
 // Add utility method to model to easily compare password with hashed password from db
-userSchema.method<IUser>('comparePassword', async function(this: IUser, candidatePassword: string) {
+userSchema.method<IUser>('comparePasswords', async function(this: IUser, candidatePassword: string) {
     try {
         return await bcrypt.compare(candidatePassword, this.password);
     } catch (error) {
